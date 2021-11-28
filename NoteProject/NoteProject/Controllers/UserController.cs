@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NoteProject.Context;
+using NoteProject.Dto;
+using NoteProject.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +33,74 @@ namespace NoteProject.Controllers
             return BadRequest("user not found");
             
         }
-        public IActionResult RegisterUser()
+        [HttpPost]
+        public async Task<IActionResult> RegisterUser(RegisterUserDto request)
         {
-            return Ok();
+            int userId = await _datbaseContext.Users.
+                Where(u => u.Phone == request.Phone)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (userId == 0)
+            {
+                return BadRequest("کاربری با این شماره موجود است");
+            }
+
+            var user = new User
+            {
+                FirstName = request.FirstName,
+                LastNmae = request.LastNmae,
+                Password = request.Password,
+                Phone = request.Phone
+            };
+            _datbaseContext.Users.Add(user);
+
+            try
+            {
+                await _datbaseContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return BadRequest("خطا در ثبت اطلاعات");
+            }
+            return Ok("ثبت اطلاعات با موفقیت انجام شد");
+
+
+        }
+
+        public async Task<IActionResult> Login(LoginDto request)
+        {
+            var user =await _datbaseContext.Users
+                .Where(u => u.Phone == request.Phone && u.Password == request.Password)
+                .Select(u => u)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return BadRequest("کاربری با این مشخصات موجود نیست");
+            }
+
+            string token = "";
+            do
+            {
+                Guid guid = new Guid();
+                token = guid.ToString();
+            }
+            while (_datbaseContext.Users.Any(u => u.token == token && u.Id != user.Id));
+
+            user.token = token;
+
+            try
+            {
+                await _datbaseContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return BadRequest("خطا در ثبت اطلاعات");
+            }
+
+            return Ok(new {name=user.FirstName,token=user.token });
+
 
         }
     }
