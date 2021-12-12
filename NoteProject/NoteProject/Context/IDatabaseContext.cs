@@ -12,6 +12,7 @@ namespace NoteProject.Context
 
 
         DbSet<User> Users { set; get; }
+        DbSet<Note> Notes { set; get; }
 
         int SaveChanges(bool acceptAllChangesOnSuccess);
 

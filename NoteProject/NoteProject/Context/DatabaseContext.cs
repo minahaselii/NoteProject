@@ -11,7 +11,6 @@ namespace NoteProject.Context
         {
 
         }
-        //sina
 
 
 
@@ -63,8 +62,8 @@ namespace NoteProject.Context
 
 
 
-        //alireza
         public DbSet<User> Users { set; get; }
+        public DbSet<Note> Notes { set; get; }
 
 
 
@@ -118,7 +117,7 @@ namespace NoteProject.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //sina
+            
 
 
 
@@ -144,17 +143,16 @@ namespace NoteProject.Context
 
 
 
-            //alireza
 
 
             modelBuilder.Entity<User>()
                  .HasIndex(u => new { u.Phone }).IsUnique();
 
-/*            modelBuilder.Entity<User>()
-                .HasMany(u => u.refreshTokens)
-                .WithOne(r => r.user)
-                .HasForeignKey(r => r.user_id)
-                .IsRequired();*/
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.notes)
+                .WithOne(n => n.User)
+                .HasForeignKey(n=>n.UserId)
+                .IsRequired();
 
 
 
@@ -227,7 +225,6 @@ namespace NoteProject.Context
 
         private void ApplyQueryFilter(ModelBuilder modelBuilder)
         {
-            //sina
 
 
 
@@ -246,7 +243,6 @@ namespace NoteProject.Context
 
 
 
-            //alireza
 
 
 

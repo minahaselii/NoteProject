@@ -83,12 +83,12 @@ namespace NoteProject.Controllers
             string token = "";
             do
             {
-                Guid guid = new Guid();
-                token = guid.ToString();
+                token = Guid.NewGuid().ToString();
             }
-            while (_datbaseContext.Users.Any(u => u.token == token && u.Id != user.Id));
+            while (_datbaseContext.Users.Any(u => u.Token == token && u.Id != user.Id));
 
-            user.token = token;
+            user.Token = token;
+            user.tokenExp = DateTime.Now.AddMinutes(120);
 
             try
             {
@@ -99,7 +99,7 @@ namespace NoteProject.Controllers
                 return BadRequest("خطا در ثبت اطلاعات");
             }
 
-            return Ok(new {name=user.FirstName,token=user.token });
+            return Ok(new {name=user.FirstName,token=user.Token,exp=user.tokenExp });
 
 
         }
