@@ -214,7 +214,6 @@ namespace NoteProject.Controllers
             note.Desc = request.Desc;
             note.Title = request.Title;
             note.Category = request.Category;
-            await _datbaseContext.SaveChangesAsync();
 
             try
             {
