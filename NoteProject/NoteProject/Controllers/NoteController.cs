@@ -168,69 +168,53 @@ namespace NoteProject.Controllers
             });
 
         }
+
+        private  IQueryable<User> GetUserIQueryable(TokenDto request)
+        {
+            IQueryable<User> userIqueryable= _datbaseContext.Users;
+            return userIqueryable = userIqueryable
+                    .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now);
+        }
+
         //update note
         [HttpPost]
         public async Task<IActionResult> UpdateNote(UpdateNoteDto request)
         {
-            var user = await _datbaseContext.Users
-                    .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
-                    .Where(u => u.IsAdmin == false)
+            var user = await GetUserIQueryable(request)
                     .Select(u => u)
                     .FirstOrDefaultAsync();
-
-
-
             if (user == null)
             {
                 return BadRequest("توکن نامعتبراست ");
             }
-            /*List<Note> noteList = user.notes;
-            Boolean flag = false;
-            
 
-            foreach (var Note in noteList)
+
+            IQueryable<Note> notesIQueryable = _datbaseContext.Notes
+                .Where(n=>n.Id==request.noteId);
+
+            if (!request.IsClientSide)
             {
-                if (Note.Id == request.noteId)
+                if (!user.IsAdmin)
                 {
-                    flag=true;
+                    return BadRequest("توکن نامعتبراست ");
                 }
             }
-            if (flag == false)
+            else
             {
-                return BadRequest("توکن نامعتبراست ");
-            }*/
+                notesIQueryable = notesIQueryable
+                    .Where(n => n.IsConfirmed && n.UserId==user.Id);
+            }
 
+            var note = await notesIQueryable.FirstOrDefaultAsync();
+            if (note==null)
+            {
+                return BadRequest("نوت نامعتبر است");
+            }
 
-
-            IQueryable<User> users = _datbaseContext.Users;
-            IQueryable<Note> notes = _datbaseContext.Notes;
-            IQueryable<GetNoteResultDto> noteresults = null;
-
-
-
-            noteresults = from n in notes
-                          join u in users
-                          on n.UserId equals u.Id
-                          where n.Id == request.noteId
-                          select new GetNoteResultDto
-                          {
-                              Id = n.Id,
-                              UserId = u.Id,
-                              Category = n.Category,
-                              Desc = n.Desc,
-                              FirstName = u.FirstName,
-                              LastName = u.LastNmae,
-                              InsertTime = n.InsertTime,
-                              IsConfirmed = n.IsConfirmed,
-                              Title = n.Title,
-
-                          };
-            var note = await noteresults.FirstOrDefaultAsync();
             note.Desc = request.Desc;
             note.Title = request.Title;
+            note.Category = request.Category;
             await _datbaseContext.SaveChangesAsync();
-
-
 
             try
             {
