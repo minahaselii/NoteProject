@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NoteProject.Dto.Note
 {
-    public class GetNoteListResultDto
+    public class GetNoteResultDto
     {
         public int Id { get; set; }
         public string Desc { get; set; }

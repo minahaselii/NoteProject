@@ -103,5 +103,26 @@ namespace NoteProject.Controllers
 
 
         }
+        //new
+        //logout
+        public IActionResult Logout(LogoutDto request)
+        {
+
+            var user = _datbaseContext.Users.Select(u => u).Where(u => u.Token == request.Token).FirstOrDefault();
+            user.tokenExp = DateTime.Now.AddMinutes(-1);
+
+
+            try
+            {
+                _datbaseContext.SaveChanges();
+                return Ok(new { name = user.FirstName, token = user.Token, exp = user.tokenExp });
+            }
+            catch
+            {
+                return BadRequest("خطا در ثبت اطلاعات");
+            }
+
+
+        }
     }
 }
