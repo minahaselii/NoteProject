@@ -236,65 +236,62 @@ namespace NoteProject.Controllers
             }
 
         }
-        //admin update
-        public async Task<IActionResult> UpdateNoteByAdmin(UpdateNoteDto request)
-
+        //delete Note
+         [HttpPost]
+        public async Task<IActionResult> DeleteNote(UpdateNoteDto request)
         {
-            if (!request.IsClientSide)
-            {
-                var adminuser = await _datbaseContext.Users
-                    .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
-                    .Where(u => u.IsAdmin == true)
+            var user = await GetUserIQueryable(request)
                     .Select(u => u)
                     .FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return BadRequest("توکن نامعتبراست ");
+            }
 
-                if (adminuser == null)
+
+            IQueryable<Note> notesIQueryable = _datbaseContext.Notes
+                .Where(n=>n.Id==request.noteId);
+
+            if (!request.IsClientSide)
+            {
+                if (!user.IsAdmin)
                 {
                     return BadRequest("توکن نامعتبراست ");
                 }
             }
-
-            IQueryable<User> users = _datbaseContext.Users;
-            IQueryable<Note> notes = _datbaseContext.Notes;
-            IQueryable<GetNoteResultDto> noteresults = null;
-
-            if (request.IsClientSide)
+            else
             {
-                notes = notes.Where(n => n.IsConfirmed);
+                notesIQueryable = notesIQueryable
+                    .Where(n => n.IsConfirmed && n.UserId==user.Id);
             }
-            if (!string.IsNullOrWhiteSpace(request.Category))
+
+            var note = await notesIQueryable.FirstOrDefaultAsync();
+            if (note==null)
             {
-                notes.Where(n => n.Category.Equals(request.Category));
+                return BadRequest("نوت نامعتبر است");
             }
-            noteresults = from n in notes
-                          join u in users
-                          on n.UserId equals u.Id
-                          select new GetNoteResultDto
-                          {
-                              Id = n.Id,
-                              UserId = u.Id,
-                              Category = n.Category,
-                              Desc = n.Desc,
-                              FirstName = u.FirstName,
-                              LastName = u.LastNmae,
-                              InsertTime = n.InsertTime,
-                              IsConfirmed = n.IsConfirmed,
-                              Title = n.Title,
 
-                          };
-            var finalComfored = await noteresults.Where(n => n.Id == request.noteId).Where(n => n.IsConfirmed == true).FirstOrDefaultAsync();
-            var finalNotComfored = await noteresults.Where(n => n.Id == request.noteId).Where(n => n.IsConfirmed == false).FirstOrDefaultAsync();
-
-            finalComfored.Desc = request.Desc;
-            finalComfored.Title = request.Title;
-
-
-            return Ok(new ResultDto<List<GetNoteResultDto>>
+            _datbaseContext.Notes.Remove(note);
+            try
             {
-                IsSuccess = true,
+                await _datbaseContext.SaveChangesAsync();
+                return Ok(new ResultDto<String>
+                {
+                    IsSuccess = true,
+                    Data = "موفقیت",
+                    Message = "عملیات با موفقیت انجام شد"
+                });
+            }
+            catch
+            {
+                return BadRequest(new ResultDto<String>
+                {
+                    IsSuccess = false,
+                    Data = "موفقیت",
+                    Message = "خطا"
+                });
+            }
 
-
-            });
         }
     }
 }
