@@ -48,14 +48,14 @@ namespace NoteProject
             });
             services.AddControllersWithViews();
             services.AddScoped<IDatabaseContext, DatabaseContext>();
-            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
             {
                 builder.WithOrigins("https://localhost:3000").AllowAnyMethod().AllowAnyHeader();
                
             }));
 
             services.AddMvc();
-            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
             {
                 builder.WithOrigins("https://localhost:5000").AllowAnyMethod().AllowAnyHeader();
 
@@ -63,7 +63,7 @@ namespace NoteProject
 
             services.AddMvc();
 
-            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
             {
                
                 builder.WithOrigins("https://api.jobexp.ir").AllowAnyMethod().AllowAnyHeader();
@@ -71,10 +71,11 @@ namespace NoteProject
             }));
 
             services.AddMvc();
-            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
             {
                
                 builder.WithOrigins("https://jobexp.ir").AllowAnyMethod().AllowAnyHeader();
+
 
             }));
 
