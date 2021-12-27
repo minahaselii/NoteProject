@@ -63,6 +63,39 @@ namespace NoteProject.Controllers
             }
 
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetNote(GetNoteDto request)
+        {
+            var noteIQuryable = _datbaseContext.Notes.Where(n => n.Id == request.Id);
+            Entity.User user = null;
+            // isclintSide----> for loged in and loged out user
+            if (!request.IsClientSide)
+            {
+                user = await GetUserIQueryable(request)
+                    .Select(u => u)
+                    .FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    return BadRequest("توکن نامعتبراست ");
+                }
+                if (!user.IsAdmin)
+                {
+                    noteIQuryable = noteIQuryable.Where(n => n.UserId == user.Id);
+                }
+            }
+            else
+            {
+                noteIQuryable = noteIQuryable.Where(n => n.IsConfirmed == true);
+            }
+            var note =await  noteIQuryable.FirstOrDefaultAsync();
+            return Ok(new ResultDto<Note>
+            {
+                IsSuccess=true,
+                Data=note
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> GetNoteList(GetNoteListDto request)
         {
