@@ -293,5 +293,72 @@ namespace NoteProject.Controllers
             }
 
         }
+        //AdminCheckNote
+        [HttpPost]
+        public async Task<IActionResult> AdminSetNoteStatus(AdminSetNoteStatusDto request)
+        {
+            var user = await GetUserIQueryable(request)
+                    .Select(u => u)
+                    .FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return BadRequest("توکن نامعتبراست ");
+            }
+
+
+            IQueryable<Note> notesIQueryable = _datbaseContext.Notes
+                .Where(n => n.Id == request.noteId);
+
+            if (!request.IsClientSide)
+            {
+                if (!user.IsAdmin)
+                {
+                    return BadRequest("توکن نامعتبراست ");
+                }
+            }
+            else
+            {
+                notesIQueryable = notesIQueryable
+                    .Where(n=>n.UserId == user.Id);
+            }
+
+            var note = await notesIQueryable.FirstOrDefaultAsync();
+            if (note == null)
+            {
+                return BadRequest("نوت نامعتبر است");
+            }
+            if (note.IsConfirmed)
+            {
+                note.IsConfirmed = false;
+            }
+            else
+            {
+                note.IsConfirmed = true;
+            }
+            
+           
+
+            try
+            {
+                await _datbaseContext.SaveChangesAsync();
+                return Ok(new ResultDto<String>
+                {
+                    IsSuccess = true,
+                    Data = "موفقیت",
+                    Message = "عملیات با موفقیت انجام شد"
+                });
+            }
+            catch
+            {
+                return BadRequest(new ResultDto<String>
+                {
+                    IsSuccess = false,
+                    Data = "موفقیت",
+                    Message = "خطا"
+                });
+            }
+
+        }
+
     }
 }
