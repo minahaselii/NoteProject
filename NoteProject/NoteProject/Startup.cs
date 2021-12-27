@@ -55,6 +55,13 @@ namespace NoteProject
             }));
 
             services.AddMvc();
+            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            {
+                builder.WithOrigins("https://localhost:5000").AllowAnyMethod().AllowAnyHeader();
+
+            }));
+
+            services.AddMvc();
 
             services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
             {
