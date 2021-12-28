@@ -41,7 +41,7 @@ namespace NoteProject.Controllers
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync();
 
-            if (userId == 0)
+            if (userId != 0)
             {
                 return BadRequest("کاربری با این شماره موجود است");
             }
