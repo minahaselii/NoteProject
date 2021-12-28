@@ -125,7 +125,7 @@ namespace NoteProject.Controllers
             {
                 //notes.Where(n => n.Category.Contains(request.Category));
                 //notes.Where(n => n.Category.StartsWith(request.Category));
-                notes.Where(n => n.Category.Equals(request.Category));
+                notes = notes.Where(n => n.Category.Equals(request.Category));
             }
             noteresults = from n in notes
                           join u in users
