@@ -17,6 +17,7 @@ namespace NoteProject
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             _Configuration = configuration;
@@ -46,83 +47,40 @@ namespace NoteProject
                 //optionBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=FootballManagement;Trusted_Connection=True;MultipleActiveResultSets=true");
                 optionBuilder.UseSqlServer(_Configuration.GetConnectionString("DBConnection")).EnableSensitiveDataLogging();
             });
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyAllowSpecificOrigins,
+                                  builder =>
+                                  {
+                                      builder.WithOrigins("https://jobexp.ir", "https://api.jobexp.ir", "https://localhost:5000", "https://localhost:3000")
+                                                          .AllowAnyHeader()
+                                                          .AllowAnyMethod();
+                                  });
+            });
+            services.AddMvc();
+
             services.AddControllersWithViews();
             services.AddScoped<IDatabaseContext, DatabaseContext>();
-            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
+            
+            /*services.AddCors(options => options.AddPolicy(MyAllowSpecificOrigins, builder =>
             {
-                builder.WithOrigins("https://localhost:3000").AllowAnyMethod().AllowAnyHeader();
+
+                builder.WithOrigins("https://jobexp.ir", "https://api.jobexp.ir", "https://localhost:5000", "https://localhost:3000").AllowAnyMethod().AllowAnyHeader();
                
-            }));
+            }));*/
 
-            services.AddMvc();
-            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
-            {
-                builder.WithOrigins("https://localhost:5000").AllowAnyMethod().AllowAnyHeader();
-
-            }));
-
-            services.AddMvc();
-
-            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
-            {
-               
-                builder.WithOrigins("https://api.jobexp.ir").AllowAnyMethod().AllowAnyHeader();
-
-            }));
-
-            services.AddMvc();
-            services.AddCors(options => options.AddPolicy("AllowOrigin", builder =>
-            {
-               
-                builder.WithOrigins("https://jobexp.ir").AllowAnyMethod().AllowAnyHeader();
-
-
-            }));
-
-            services.AddMvc();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            /* if (env.IsDevelopment())
-             {
-                 app.UseDeveloperExceptionPage();
-             }
-             else
-             {
-                 app.UseExceptionHandler("/Home/Error");
-                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                 app.UseHsts();
-             }
-             app.UseHttpsRedirection();
-             app.UseStaticFiles();
+            
+            
+           
+           
 
-             app.UseRouting();
-
-             app.UseAuthorization();
-
-             app.UseEndpoints(endpoints =>
-             {
-                 endpoints.MapControllerRoute(
-                     name: "default",
-                     pattern: "{controller=Home}/{action=Index}/{id?}");
-             });*/
-            //2
-            app.UseCors(builder => builder
-             .AllowAnyOrigin()
-             .AllowAnyMethod()
-             .AllowAnyHeader());
-            //app.UseMvc();
-            app.UseCors("ApiCorsPolicy");
-            //app.UseMvc();
-
-            //1
-            /*app.UseCors(
-                options => options.WithOrigins("https://jobexp.ir").AllowAnyMethod()
-             );*/
-
-            /*app.UseMvc();*/
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -137,6 +95,7 @@ namespace NoteProject
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseAuthorization();
 

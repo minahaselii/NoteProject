@@ -11,6 +11,8 @@ namespace NoteProject.Entity
             "کارمندی",
             "فریلنسری",
             "آزاد",
+            "همکاریاب",
+            "کاریاب"
         };
 
         public string Desc { get; set; }
@@ -20,6 +22,7 @@ namespace NoteProject.Entity
         public bool IsConfirmed { get; set; }
         public User User { get; set; }
         public int UserId { get; set; }
-
+        public int LikeCounter { get; set; }
+        public ICollection<Like> likes { get; set; }
     }
 }

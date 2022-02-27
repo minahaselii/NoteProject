@@ -15,134 +15,18 @@ namespace NoteProject.Context
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         public DbSet<User> Users { set; get; }
         public DbSet<Note> Notes { set; get; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        public DbSet<Like> Likes { set; get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.likes)
+                .WithOne(l => l.User)
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
 
             modelBuilder.Entity<User>()
@@ -151,74 +35,8 @@ namespace NoteProject.Context
             modelBuilder.Entity<User>()
                 .HasMany(u => u.notes)
                 .WithOne(n => n.User)
-                .HasForeignKey(n=>n.UserId)
+                .HasForeignKey(n => n.UserId)
                 .IsRequired();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             ApplyQueryFilter(modelBuilder);
         }
@@ -227,44 +45,7 @@ namespace NoteProject.Context
         {
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
 
-
-
-
     }
-
-
 }

@@ -25,7 +25,7 @@ namespace NoteProject.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNote(AddNoteDto addNoteDto)
         {
-            var user =await _datbaseContext.Users
+            var user = await _datbaseContext.Users
                 .Where(u => u.Token == addNoteDto.Token && u.tokenExp > DateTime.Now)
                 .Select(u => u)
                 .FirstOrDefaultAsync();
@@ -40,7 +40,7 @@ namespace NoteProject.Controllers
                 Title = addNoteDto.Title,
                 Category = addNoteDto.Category,
                 InsertTime = DateTime.Now,
-                User=user
+                User = user
             };
             await _datbaseContext.Notes.AddAsync(note);
             try
@@ -48,14 +48,14 @@ namespace NoteProject.Controllers
                 await _datbaseContext.SaveChangesAsync();
                 return Ok(new ResultDto<int>
                 {
-                    IsSuccess=true,
-                    Data= note.Id,
-                    Message="عملیات با موفقیت انجام شد"
+                    IsSuccess = true,
+                    Data = note.Id,
+                    Message = "عملیات با موفقیت انجام شد"
                 });
             }
             catch
             {
-                return  BadRequest(new ResultDto<int>
+                return BadRequest(new ResultDto<int>
                 {
                     IsSuccess = false,
                     Message = "خطا"
@@ -88,11 +88,11 @@ namespace NoteProject.Controllers
             {
                 noteIQuryable = noteIQuryable.Where(n => n.IsConfirmed == true);
             }
-            var note =await  noteIQuryable.FirstOrDefaultAsync();
+            var note = await noteIQuryable.FirstOrDefaultAsync();
             return Ok(new ResultDto<Note>
             {
-                IsSuccess=true,
-                Data=note
+                IsSuccess = true,
+                Data = note
             });
         }
 
@@ -103,7 +103,7 @@ namespace NoteProject.Controllers
             {
                 var adminuser = await _datbaseContext.Users
                     .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
-                    .Where(u=>u.IsAdmin==true)
+                    .Where(u => u.IsAdmin == true)
                     .Select(u => u)
                     .FirstOrDefaultAsync();
 
@@ -113,15 +113,15 @@ namespace NoteProject.Controllers
                 }
             }
 
-            IQueryable<User> users=_datbaseContext.Users;
-            IQueryable<Note> notes=_datbaseContext.Notes;
+            IQueryable<User> users = _datbaseContext.Users;
+            IQueryable<Note> notes = _datbaseContext.Notes;
             IQueryable<GetNoteResultDto> noteresults = null;
 
             if (request.IsClientSide)
             {
-               notes= notes.Where(n => n.IsConfirmed);
+                notes = notes.Where(n => n.IsConfirmed);
             }
-            if(!string.IsNullOrWhiteSpace(request.Category))
+            if (!string.IsNullOrWhiteSpace(request.Category))
             {
                 //notes.Where(n => n.Category.Contains(request.Category));
                 //notes.Where(n => n.Category.StartsWith(request.Category));
@@ -143,12 +143,12 @@ namespace NoteProject.Controllers
                               Title = n.Title,
 
                           };
-            var finalResult =await  noteresults.ToListAsync();
+            var finalResult = await noteresults.ToListAsync();
             return Ok(new ResultDto<List<GetNoteResultDto>>
             {
-                IsSuccess=true,
-                Data=finalResult
-                
+                IsSuccess = true,
+                Data = finalResult
+
             });
 
         }
@@ -202,9 +202,9 @@ namespace NoteProject.Controllers
 
         }
 
-        private  IQueryable<User> GetUserIQueryable(TokenDto request)
+        private IQueryable<User> GetUserIQueryable(TokenDto request)
         {
-            IQueryable<User> userIqueryable= _datbaseContext.Users;
+            IQueryable<User> userIqueryable = _datbaseContext.Users;
             return userIqueryable = userIqueryable
                     .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now);
         }
@@ -223,7 +223,7 @@ namespace NoteProject.Controllers
 
 
             IQueryable<Note> notesIQueryable = _datbaseContext.Notes
-                .Where(n=>n.Id==request.noteId);
+                .Where(n => n.Id == request.noteId);
 
             if (!request.IsClientSide)
             {
@@ -235,11 +235,11 @@ namespace NoteProject.Controllers
             else
             {
                 notesIQueryable = notesIQueryable
-                    .Where(n => n.IsConfirmed && n.UserId==user.Id);
+                    .Where(n => n.IsConfirmed && n.UserId == user.Id);
             }
 
             var note = await notesIQueryable.FirstOrDefaultAsync();
-            if (note==null)
+            if (note == null)
             {
                 return BadRequest("نوت نامعتبر است");
             }
@@ -270,7 +270,7 @@ namespace NoteProject.Controllers
 
         }
         //delete Note
-         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> DeleteNote(UpdateNoteDto request)
         {
             var user = await GetUserIQueryable(request)
@@ -283,7 +283,7 @@ namespace NoteProject.Controllers
 
 
             IQueryable<Note> notesIQueryable = _datbaseContext.Notes
-                .Where(n=>n.Id==request.noteId);
+                .Where(n => n.Id == request.noteId);
 
             if (!request.IsClientSide)
             {
@@ -295,11 +295,11 @@ namespace NoteProject.Controllers
             else
             {
                 notesIQueryable = notesIQueryable
-                    .Where(n => n.IsConfirmed && n.UserId==user.Id);
+                    .Where(n => n.IsConfirmed && n.UserId == user.Id);
             }
 
             var note = await notesIQueryable.FirstOrDefaultAsync();
-            if (note==null)
+            if (note == null)
             {
                 return BadRequest("نوت نامعتبر است");
             }
@@ -352,7 +352,7 @@ namespace NoteProject.Controllers
             else
             {
                 notesIQueryable = notesIQueryable
-                    .Where(n=>n.UserId == user.Id);
+                    .Where(n => n.UserId == user.Id);
             }
 
             var note = await notesIQueryable.FirstOrDefaultAsync();
@@ -368,8 +368,8 @@ namespace NoteProject.Controllers
             {
                 note.IsConfirmed = true;
             }
-            
-           
+
+
 
             try
             {
@@ -393,5 +393,195 @@ namespace NoteProject.Controllers
 
         }
 
+        //Like
+        [HttpPost]
+        public async Task<IActionResult> LikeNote(LikeDto request)
+        {
+            var user = await _datbaseContext.Users
+                   .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
+                   .Select(u => u)
+                   .FirstOrDefaultAsync();
+            var likeobj = await _datbaseContext.Likes.FirstOrDefaultAsync(l => l.NoteId == request.NoteId && l.UserId == user.Id);
+
+            if (user == null)
+            {
+                return BadRequest("توکن نامعتبراست ");
+            }
+
+            if (likeobj != null)
+            {
+                if (likeobj.IsLiked == true)
+                {
+
+                    //return Ok(_datbaseContext.Users.Find(request.noteId));
+                    try
+                    {
+                        return Ok(new ResultDto<String>
+                        {
+                            IsSuccess = true,
+                            Data = "موفقیت",
+                            Message = "این پست قبلا لایک شده بود قرمزش کن"
+                        });
+                    }
+                    catch
+                    {
+                        return BadRequest(new ResultDto<String>
+                        {
+                            IsSuccess = false,
+                            Data = "موفقیت",
+                            Message = "خطا در عملیات لایک"
+                        });
+                    }
+                }
+                else if (likeobj.IsLiked == false)
+                {
+                    _datbaseContext.Likes.FirstOrDefault(l => l.NoteId == request.NoteId && l.UserId == user.Id && l.IsLiked==true);
+                    //await _datbaseContext.SaveChangesAsync();
+                    //return Ok(_datbaseContext.Users.Find(request.noteId));
+                    try
+                    {
+                        await _datbaseContext.SaveChangesAsync();
+                        return Ok(new ResultDto<String>
+                        {
+                            IsSuccess = true,
+                            Data = "موفقیت",
+                            Message = "لایک با موفقیت انجام شد"
+                        });
+                    }
+                    catch
+                    {
+                        return BadRequest(new ResultDto<String>
+                        {
+                            IsSuccess = false,
+                            Data = "موفقیت",
+                            Message = "خطا در عملیات لایک"
+                        });
+                    }
+
+                }
+                else
+                {
+                    return BadRequest(new ResultDto<String>
+                    {
+                        IsSuccess = false,
+                        Data = "موفقیت",
+                        Message = "خطا در عملیات لایک"
+                    });
+                }
+            }
+            else
+            {
+                Like like = new Like()
+                {
+                    NoteId = request.NoteId,
+                    UserId = user.Id,
+                    IsLiked = true
+                };
+                _datbaseContext.Likes.Add(like);
+                //await _datbaseContext.SaveChangesAsync();
+                //return Ok(_datbaseContext.Notes.Find(request.noteId));
+                try
+                {
+                    await _datbaseContext.SaveChangesAsync();
+                    return Ok(new ResultDto<String>
+                    {
+                        IsSuccess = true,
+                        Data = "موفقیت",
+                        Message = "لایک با موفقیت انجام شد"
+                    });
+                }
+                catch
+                {
+                    return BadRequest(new ResultDto<String>
+                    {
+                        IsSuccess = false,
+                        Data = "موفقیت",
+                        Message = "خطا در عملیات لایک"
+                    });
+                }
+
+            }
+
+            
+        }
+
+        //LikeList
+        [HttpPost]
+        public async Task<IActionResult> LikeList(GetNoteListDto request)
+        {
+             
+            var user = await _datbaseContext.Users
+                  .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
+                  .Select(u => u)
+                  .FirstOrDefaultAsync();
+
+           
+            IQueryable<Note> notes = _datbaseContext.Notes;
+            IQueryable<Like> likes = _datbaseContext.Likes;
+            IQueryable<GetLikeListResultDto> noteIDresults = null;
+            IQueryable<LikeDto>likeresult = null; 
+            IQueryable<GetLikeCheckListDto> likeCheckList = null;
+
+
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+                likes = likes.Where(l => l.UserId == user.Id);
+                likeresult = from l in likes
+                             select new LikeDto
+                             {
+                                 NoteId = l.NoteId,
+                                 IsLiked = l.IsLiked,
+                                 UserId = user.Id,
+                             };
+
+            if (request.IsClientSide)
+            {
+                notes = notes.Where(n => n.IsConfirmed);
+            }
+            if (!string.IsNullOrWhiteSpace(request.Category))
+            {
+                
+                notes = notes.Where(n => n.Category.Equals(request.Category));
+            }
+            noteIDresults = from n in notes 
+                          select new GetLikeListResultDto
+                          {
+                              Id = n.Id,
+                              IsConfirmed = n.IsConfirmed,
+                          };
+            var finalResultNoteId = await noteIDresults.ToListAsync();
+            var finalResultLike = await likeresult.ToListAsync();
+            var finalChecktLike = await likeCheckList.ToListAsync();
+            foreach (var item in finalResultNoteId)
+            {
+                if (finalResultLike.Contains(new LikeDto { NoteId = item.Id,IsLiked=true}))
+                {
+                    finalChecktLike.Add(new GetLikeCheckListDto(item.Id, 1)) ;
+                }
+                else if (finalResultLike.Contains(new LikeDto { NoteId = item.Id, IsLiked = false }))
+                {
+                    finalChecktLike.Add(new GetLikeCheckListDto(item.Id, 0));
+                }
+                else
+                {
+                    finalChecktLike.Add(new GetLikeCheckListDto(item.Id, 0));
+                }
+            }
+            
+            return Ok(new ResultDto<List<GetLikeCheckListDto>>
+            {
+                IsSuccess = true,
+                Data = finalChecktLike
+
+            });
+
+
+
+
+
+        }
     }
 }

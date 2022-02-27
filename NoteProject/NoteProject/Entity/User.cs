@@ -19,5 +19,6 @@ namespace NoteProject.Entity
         public DateTime tokenExp { get; set; }
 
         public List<Note> notes { get; set; }
+        public ICollection<Like> likes { get; set; }
     }
 }
