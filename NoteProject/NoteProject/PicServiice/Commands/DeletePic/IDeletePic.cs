@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using ComputerUnion.Common.Dto;
+using NoteProject.Dto.Common;
 
-namespace ComputerUnion.Application.Services.PicManager.Commands.DeletePic
+namespace NoteProject.PicServiice.Commands.DeletePic
 {
     public interface IDeletePic
     {

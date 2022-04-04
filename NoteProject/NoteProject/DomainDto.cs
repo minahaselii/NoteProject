@@ -1,7 +1,7 @@
-﻿namespace ComputerUnion.Common.Dto
+﻿namespace NoteProject
 {
     public class DomainDto
     {
-        public string name { get; set; }
+        public static string name { get; set; } = "https://localhost//5001";
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ComputerUnion.Application.Services.PicManager.Commands.DeletePic
+﻿namespace NoteProject.PicServiice.Commands.DeletePic
 {
     public class DeletePicDto
     {

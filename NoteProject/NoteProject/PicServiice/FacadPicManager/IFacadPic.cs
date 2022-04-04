@@ -1,10 +1,8 @@
-﻿
-using NoteProject.Application.Services.PicManager.Commands.UploadPic;
-using NoteProject.Application.Services.PicManager.Commands.UploadPic;
-using ComputerUnion.Application.Services.PicManager.Commands.DeletePic;
-using ComputerUnion.Application.Services.PicManager.Queries.PicUrl;
+﻿using NoteProject.PicServiice.Commands.DeletePic;
+using NoteProject.PicServiice.Commands.UploadPic;
+using NoteProject.PicServiice.Queries.PicUrl;
 
-namespace NoteProject.Application.Services.PicManager.FacadPicManager
+namespace NoteProject.PicServiice.FacadPicManager
 {
     public interface IFacadPic
     {

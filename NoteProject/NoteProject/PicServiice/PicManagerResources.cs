@@ -1,4 +1,4 @@
-﻿namespace ComputerUnion.Application.Services.PicManager
+﻿namespace NoteProject.PicServiice
 {
     public class PicManagerResources
     {

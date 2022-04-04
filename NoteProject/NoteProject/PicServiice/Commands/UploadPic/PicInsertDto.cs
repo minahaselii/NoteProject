@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace ComputerUnion.Application.Services.PicManager.Commands.UploadPic
+namespace NoteProject.PicServiice.Commands.UploadPic
 {
    public class PicInsertDto
     {

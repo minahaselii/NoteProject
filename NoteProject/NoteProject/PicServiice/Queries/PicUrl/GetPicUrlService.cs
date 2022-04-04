@@ -1,17 +1,9 @@
-﻿using ComputerUnion.Common.Dto;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using NoteProject.Dto.Common;
 
-namespace ComputerUnion.Application.Services.PicManager.Queries.PicUrl
+namespace NoteProject.PicServiice.Queries.PicUrl
 {
     public class GetPicUrlService
     {
-        private readonly DomainDto _domainDto;
-        public GetPicUrlService(DomainDto domainDto)
-        {
-            _domainDto = domainDto;
-        }
 
         public ResultDto<string> DeleteUrl(string picUrl)
         {
@@ -27,7 +19,7 @@ namespace ComputerUnion.Application.Services.PicManager.Queries.PicUrl
         {
             return new ResultDto<string>
             {
-                Data =picUrl!=null ? _domainDto.name + picUrl :null,
+                Data =picUrl!=null ? DomainDto.name + picUrl :null,
                 IsSuccess = true
             };
 

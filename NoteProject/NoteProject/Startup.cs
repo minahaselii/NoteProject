@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NoteProject.PicServiice.FacadPicManager;
 
 namespace NoteProject
 {
@@ -62,7 +63,8 @@ namespace NoteProject
 
             services.AddControllersWithViews();
             services.AddScoped<IDatabaseContext, DatabaseContext>();
-            
+            services.AddScoped<IFacadPic, FacadPicService>();
+
             /*services.AddCors(options => options.AddPolicy(MyAllowSpecificOrigins, builder =>
             {
 
@@ -70,7 +72,7 @@ namespace NoteProject
                
             }));*/
 
-           
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

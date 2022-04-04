@@ -14,6 +14,9 @@ using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using NoteProject.PicServiice.Commands.DeletePic;
+using NoteProject.PicServiice.Commands.UploadPic;
+using NoteProject.PicServiice.FacadPicManager;
 
 namespace NoteProject.Controllers
 {
@@ -21,13 +24,15 @@ namespace NoteProject.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        IDatabaseContext _datbaseContext;
+        private readonly IDatabaseContext _datbaseContext;
+        private readonly IFacadPic _facadPic;
 
         public object ViewBag { get; private set; }
 
-        public UserController(IDatabaseContext datbaseContext)
+        public UserController(IDatabaseContext datbaseContext , IFacadPic facadPic)
         {
             _datbaseContext = datbaseContext;
+            _facadPic = facadPic;
         }
 
         [HttpGet]
@@ -136,33 +141,17 @@ namespace NoteProject.Controllers
 
         //save profile changes
         [HttpPost]
-        public async Task<IActionResult> SetProfile(SetProfileDto request)
+        public async Task<IActionResult> SetProfile([FromForm]SetProfileDto request)
         {
             var user = await _datbaseContext.Users
                   .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
                   .FirstOrDefaultAsync();
-            Boolean CurrentUser;
-
-            if (user == null)
+            
+            if (user != null)
             {
-                return BadRequest("کاربری با این مشخصات موجود نیست");
-            }
-            else
-            {
-                if(user.Id == request.UserId)
+                if (user.HasProfile)
                 {
-                    CurrentUser = true;
-                }
-                else
-                {
-                    CurrentUser = false;
-                }
-            }
-            if (CurrentUser == true)
-            {
-                var ProfileObj = _datbaseContext.Profile.Where(p => p.UserId == request.UserId).FirstOrDefault();
-                if (ProfileObj != null)
-                {
+                    var ProfileObj = _datbaseContext.Profile.Where(p => p.UserId == request.UserId).FirstOrDefault();
                     ProfileObj.Age = request.Age;
                     ProfileObj.Village = request.Village;
                     ProfileObj.City = request.City;
@@ -175,29 +164,55 @@ namespace NoteProject.Controllers
                     /* ProfileObj.BirthTime = request.BirthTime;
                      ProfileObj.IAccept = request.IAccept;*/
                     ProfileObj.User = user;
+
+                    if (!string.IsNullOrWhiteSpace(ProfileObj.ProfileImage))
+                    {
+                        var deleteUpload = _facadPic.DeletePicService().DeletePic(new DeletePicDto
+                        {
+                            picAddress = ProfileObj.ProfileImage
+                        });
+                    }
+                    var uploadResult = await _facadPic.UploadPicService().UploadFile(new PicInsertDto
+                    {
+                        height = request.height,
+                        quality = request.quality,
+                        width = request.width,
+                        pic_file = request.pic_file,
+                        uploader_id = 0,
+                        EntityName = "ProfilePics"
+                    });
+
+                    if (!uploadResult.IsSuccess)
+                    {
+                        return BadRequest(new ResultDto
+                        {
+                            IsSuccess = false,
+                            Message = "خطا در آپلود عکس "
+                        });
+                    }
+
+                    ProfileObj.ProfileImage = uploadResult.Data;
                     try
                     {
                         await _datbaseContext.SaveChangesAsync();
-                        return Ok(new ResultDto<String>
+                        return Ok(new ResultDto
                         {
                             IsSuccess = true,
-                            Data = "موفقیت",
                             Message = "عملیات با موفقیت انجام شد"
                         });
                     }
                     catch
                     {
-                        return BadRequest(new ResultDto<String>
+                        return BadRequest(new ResultDto
                         {
                             IsSuccess = false,
-                            Data = "موفقیت",
                             Message = "خطا"
                         });
                     }
                 }
                 else
                 {
-                    var thisProfile = new Profile()
+                    var ProfileObj = new Profile()
                     {
                         Age = request.Age,
                         Village = request.Village,
@@ -211,54 +226,60 @@ namespace NoteProject.Controllers
                         /* BirthTime = request.BirthTime,
                          IAccept = request.IAccept,*/
                         User = user,
-
-
+                        UserId = user.Id
                     };
 
+                    var uploadResult = await _facadPic.UploadPicService().UploadFile(new PicInsertDto
+                    {
+                        height = request.height,
+                        quality = request.quality,
+                        width = request.width,
+                        pic_file = request.pic_file,
+                        uploader_id = 0,
+                        EntityName = "ProfilePics"
+                    });
 
+                    if (!uploadResult.IsSuccess)
+                    {
+                        return BadRequest(new ResultDto
+                        {
+                            IsSuccess = false,
+                            Message = "خطا در آپلود عکس "
+                        });
+                    }
+
+                    ProfileObj.ProfileImage = uploadResult.Data;
+                    user.HasProfile = true;
+                    
                     try
                     {
-                        await _datbaseContext.Profile.AddAsync(thisProfile);
+                        await _datbaseContext.Profile.AddAsync(ProfileObj);
                         await _datbaseContext.SaveChangesAsync();
 
-                        return Ok(new ResultDto<String>
+                        return Ok(new ResultDto
                         {
                             IsSuccess = true,
-                            Data = "موفقیت",
                             Message = "عملیات با موفقیت انجام شد"
                         });
                     }
-                    catch
+                    catch(Exception)
                     {
-                        return BadRequest(new ResultDto<Profile>
+                        return BadRequest(new ResultDto
                         {
                             IsSuccess = false,
-                            Data = thisProfile,
                             Message = "خطا در ویرایش پروفایل "
                         });
                     }
                 }
 
             }
-            else if(CurrentUser == false)
-            {
-                SetProfileDto ShowProfile = null;
-                ShowProfile.Age = user.Profile.Age;
-
-                return Ok(new ResultDto<Profile>
-                {
-                    IsSuccess = true,
-                    Data = user.Profile,
-                    Message = "نمایش پروفایل به کاربر سایت"
-                });
-            }
+           
             else
             {
                 return BadRequest(new ResultDto<string>
                 {
                     IsSuccess = false,
-                    Data = "خطا",
-                    Message = "خطا در نمایش پروفایل به کاربران سایت  "
+                    Message = "کاربر با این مشخصات یافت نشد"
                 });
             }
 

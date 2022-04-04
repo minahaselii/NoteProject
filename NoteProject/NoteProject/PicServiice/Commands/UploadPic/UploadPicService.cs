@@ -1,17 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using ComputerUnion.Application.Services.PicManager.Commands.UploadPic;
 using Microsoft.AspNetCore.Hosting;
-using NoteProject.Application.Services.PicManager.Commands.UploadPic;
 using NoteProject.Dto.Common;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 
-namespace NoteProject.Application.Services.PicManager.Commands.UploadPic
+namespace NoteProject.PicServiice.Commands.UploadPic
 {
     public class UploadPicService:IUploadPic
     {
@@ -69,21 +66,7 @@ namespace NoteProject.Application.Services.PicManager.Commands.UploadPic
                     image.Mutate(x => x.Resize(picInsertDto.width, picInsertDto.height));
                     await image.SaveAsync(filePath,new JpegEncoder() { Quality=picInsertDto.quality});
                 }
-
-                //using (var memoryStream = new MemoryStream())
-                //{
-                //    picInsertDto.pic_file.CopyTo(memoryStream);
-                //    // using imagesharp library to process the image features suach as size
-                //    using (Image image = Image.Load(memoryStream))
-                //    {
-                //        image.Mutate(x => x.Resize(picInsertDto.width, picInsertDto.height));
-                //        image.Save(memoryStream, new JpegEncoder() { Quality = picInsertDto.quality });
-                //    }
-                //    //CompressImage()
-                //}
-
-
-                //string fullFilePath = Path.Combine(_domainDto.name, filePath);
+                
                 return new ResultDto<string>
                 {
                     IsSuccess = true,

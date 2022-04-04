@@ -23,6 +23,11 @@ namespace NoteProject.Dto.Note
         /*public DateTime BirthTime { get; set; }
         public bool IAccept { get; set; }*/
         public int UserId { get; set; }
+        
+        public IFormFile pic_file { get; set; }
+        public int height { get; set; } = 300;
+        public int width { get; set; } = 300;
+        public int quality { get; set; } = 70;
 
 
 

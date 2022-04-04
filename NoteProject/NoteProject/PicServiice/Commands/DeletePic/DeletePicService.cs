@@ -1,18 +1,16 @@
 ﻿using System.Threading.Tasks;
-using ComputerUnion.Common.Dto;
 using Microsoft.AspNetCore.Hosting;
+using NoteProject.Dto.Common;
 
-namespace ComputerUnion.Application.Services.PicManager.Commands.DeletePic
+namespace NoteProject.PicServiice.Commands.DeletePic
 {
     public class DeletePicService:IDeletePic
     {
 
         private IHostingEnvironment _hosting;
-        private DomainDto _domainDto;
-        public DeletePicService(IHostingEnvironment hostingEnvironment,  DomainDto domainDto)
+        public DeletePicService(IHostingEnvironment hostingEnvironment)
         {
             _hosting = hostingEnvironment;
-            _domainDto = domainDto;
         }
 
         public async Task<ResultDto<string>> DeletePic(DeletePicDto deletePicDto)

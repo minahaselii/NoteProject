@@ -22,6 +22,6 @@ namespace NoteProject.Entity
         public List<Note> notes { get; set; }
         public ICollection<Like> likes { get; set; }
         public Profile Profile { get; set; }
-        
+        public bool HasProfile { get; set; }
     }
 }
