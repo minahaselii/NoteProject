@@ -511,8 +511,7 @@ namespace NoteProject.Controllers
         {
              
             var user = await _datbaseContext.Users
-                  .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
-                  .Select(u => u)
+                  .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
                   .FirstOrDefaultAsync();
 
            
@@ -554,21 +553,18 @@ namespace NoteProject.Controllers
                           };
             var finalResultNoteId = await noteIDresults.ToListAsync();
             var finalResultLike = await likeresult.ToListAsync();
-            var finalChecktLike = await likeCheckList.ToListAsync();
+            List<GetLikeCheckListDto> finalChecktLike = new List<GetLikeCheckListDto>();
             foreach (var item in finalResultNoteId)
             {
-                if (finalResultLike.Contains(new LikeDto { NoteId = item.Id,IsLiked=true}))
+                if (finalResultLike.Any(f => f.NoteId == item.Id && f.IsLiked == true))
                 {
                     finalChecktLike.Add(new GetLikeCheckListDto(item.Id, 1)) ;
                 }
-                else if (finalResultLike.Contains(new LikeDto { NoteId = item.Id, IsLiked = false }))
+                else if (finalResultLike.Any(f=>f.NoteId==item.Id &&f.IsLiked==false))
                 {
                     finalChecktLike.Add(new GetLikeCheckListDto(item.Id, 0));
                 }
-                else
-                {
-                    finalChecktLike.Add(new GetLikeCheckListDto(item.Id, 0));
-                }
+               
             }
             
             return Ok(new ResultDto<List<GetLikeCheckListDto>>

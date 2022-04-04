@@ -39,7 +39,7 @@ namespace NoteProject
 
 
             services.AddScoped<IDatabaseContext, DatabaseContext>();*/
-            services.AddCors(); // Make sure you call this previous to AddMvc
+           // services.AddCors(); // Make sure you call this previous to AddMvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddMvc();
             services.AddDbContext<DatabaseContext>(optionBuilder =>
@@ -52,7 +52,8 @@ namespace NoteProject
                 options.AddPolicy(MyAllowSpecificOrigins,
                                   builder =>
                                   {
-                                      builder.WithOrigins("https://jobexp.ir", "https://api.jobexp.ir", "https://localhost:5000", "https://localhost:3000")
+                                      builder.WithOrigins("https://jobexp.ir", "https://api.jobexp.ir", "https://localhost:5000", "https://localhost:3000",
+                                          "http://jobexp.ir", "http://api.jobexp.ir", "http://localhost:5000", "http://localhost:3000")
                                                           .AllowAnyHeader()
                                                           .AllowAnyMethod();
                                   });
