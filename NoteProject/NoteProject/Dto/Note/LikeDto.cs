@@ -10,8 +10,7 @@ namespace NoteProject.Dto.Note
     {
         public int NoteId { get; set; }
         public int UserId { get; set; }
-
         public bool IsLiked { get; set; }
-
+       
     }
 }

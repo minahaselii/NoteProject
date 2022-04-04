@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NoteProject.Context;
 
 namespace NoteProject.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220305134253_likeNum")]
+    partial class likeNum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,54 +79,6 @@ namespace NoteProject.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notes");
-                });
-
-            modelBuilder.Entity("NoteProject.Entity.Profile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("Age")
-                        .HasColumnType("int");
-
-                    b.Property<int>("City")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EducationNum")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Instagram")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("JobStatus")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("JobType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Linkdin")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfileDesc")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfileImage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Village")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Profile");
                 });
 
             modelBuilder.Entity("NoteProject.Entity.User", b =>
@@ -199,17 +153,6 @@ namespace NoteProject.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("NoteProject.Entity.Profile", b =>
-                {
-                    b.HasOne("NoteProject.Entity.User", "User")
-                        .WithOne("Profile")
-                        .HasForeignKey("NoteProject.Entity.Profile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("NoteProject.Entity.User", b =>
                 {
                     b.HasOne("NoteProject.Entity.Note", null)
@@ -229,8 +172,6 @@ namespace NoteProject.Migrations
                     b.Navigation("likes");
 
                     b.Navigation("notes");
-
-                    b.Navigation("Profile");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,7 +9,7 @@ namespace NoteProject.Entity
 {
     public class Note : EntityId<int>
     {
-        public static List<string>  CategoryList =new List<string>(){
+        public static List<string> CategoryList = new List<string>(){
             "کارمندی",
             "فریلنسری",
             "آزاد",
@@ -24,5 +26,11 @@ namespace NoteProject.Entity
         public int UserId { get; set; }
         public int LikeCounter { get; set; }
         public ICollection<Like> likes { get; set; }
+        //public int LikeNum { get; set; }
+        public List<User> LikeUsersList { get; set; }
+
+        
+
+
     }
 }

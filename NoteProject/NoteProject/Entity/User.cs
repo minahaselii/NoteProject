@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace NoteProject.Entity
 {
     public class User: EntityId<int>
     {
 
-        //public int Id { get; set; }
+      
         public string FirstName { get; set; }
         public string LastNmae { get; set; }
         public string Phone { get; set; }
@@ -20,5 +21,7 @@ namespace NoteProject.Entity
 
         public List<Note> notes { get; set; }
         public ICollection<Like> likes { get; set; }
+        public Profile Profile { get; set; }
+        
     }
 }

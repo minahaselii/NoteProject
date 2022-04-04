@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NoteProject.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,5 +17,8 @@ namespace NoteProject.Dto.Note
         public int UserId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public Boolean IsLiked { get; set; }
+        public int LikeNum { get; set; }
+        public List<User> LikeUserList { get; set; }
     }
 }

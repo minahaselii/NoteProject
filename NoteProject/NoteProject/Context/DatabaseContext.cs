@@ -18,6 +18,9 @@ namespace NoteProject.Context
         public DbSet<User> Users { set; get; }
         public DbSet<Note> Notes { set; get; }
         public DbSet<Like> Likes { set; get; }
+        public DbSet<Profile> Profile { set; get; }
+     
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

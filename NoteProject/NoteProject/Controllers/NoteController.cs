@@ -99,18 +99,22 @@ namespace NoteProject.Controllers
         [HttpPost]
         public async Task<IActionResult> GetNoteList(GetNoteListDto request)
         {
+            var userquery =  _datbaseContext.Users.Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now);
+            User user;
             if (!request.IsClientSide)
             {
-                var adminuser = await _datbaseContext.Users
-                    .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
-                    .Where(u => u.IsAdmin == true)
-                    .Select(u => u)
-                    .FirstOrDefaultAsync();
-
-                if (adminuser == null)
-                {
-                    return BadRequest("توکن نامعتبراست ");
-                }
+                userquery = userquery.Where(u => u.IsAdmin);
+                    
+            }
+            else
+            {
+                userquery = userquery.Where(u => u.IsAdmin == false);
+               
+            }
+            user = await userquery.FirstOrDefaultAsync();
+            if(user is null)
+            {
+                return BadRequest("توکن نا نعتبر است");
             }
 
             IQueryable<User> users = _datbaseContext.Users;
@@ -123,8 +127,6 @@ namespace NoteProject.Controllers
             }
             if (!string.IsNullOrWhiteSpace(request.Category))
             {
-                //notes.Where(n => n.Category.Contains(request.Category));
-                //notes.Where(n => n.Category.StartsWith(request.Category));
                 notes = notes.Where(n => n.Category.Equals(request.Category));
             }
             noteresults = from n in notes
@@ -141,6 +143,10 @@ namespace NoteProject.Controllers
                               InsertTime = n.InsertTime,
                               IsConfirmed = n.IsConfirmed,
                               Title = n.Title,
+                              LikeNum = _datbaseContext.Likes.Where(l => l.NoteId == n.Id && l.IsLiked).Count(),
+                              IsLiked = _datbaseContext.Likes.Where(l => l.NoteId == n.Id && l.IsLiked && l.UserId == user.Id).Any(),
+                              LikeUserList =  _datbaseContext.Likes.Include(l => l.User).Where(l => l.NoteId == n.Id && l.IsLiked).Select(l=>l.User).ToList()
+                              
 
                           };
             var finalResult = await noteresults.ToListAsync();
@@ -399,73 +405,74 @@ namespace NoteProject.Controllers
         {
             var user = await _datbaseContext.Users
                    .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
-                   .Select(u => u)
                    .FirstOrDefaultAsync();
-            var likeobj = await _datbaseContext.Likes.FirstOrDefaultAsync(l => l.NoteId == request.NoteId && l.UserId == user.Id);
-
             if (user == null)
             {
                 return BadRequest("توکن نامعتبراست ");
             }
+            var likeobj = _datbaseContext.Likes.Where(l => l.UserId == user.Id && l.NoteId == request.NoteId).FirstOrDefault();    
 
             if (likeobj != null)
             {
                 if (likeobj.IsLiked == true)
                 {
-
-                    //return Ok(_datbaseContext.Users.Find(request.noteId));
+                   
+                    likeobj.IsLiked = false;
                     try
                     {
-                        return Ok(new ResultDto<String>
+                        await _datbaseContext.SaveChangesAsync();
+                        return Ok(new ResultDto<Boolean>
                         {
                             IsSuccess = true,
-                            Data = "موفقیت",
-                            Message = "این پست قبلا لایک شده بود قرمزش کن"
+                            Data = likeobj.IsLiked,
+                            Message = "موفقیت"
+                            
                         });
                     }
                     catch
                     {
-                        return BadRequest(new ResultDto<String>
+                        return BadRequest(new ResultDto<Boolean>
                         {
                             IsSuccess = false,
-                            Data = "موفقیت",
-                            Message = "خطا در عملیات لایک"
+                            Data = likeobj.IsLiked,
+                            Message = "خطا "
                         });
                     }
                 }
                 else if (likeobj.IsLiked == false)
                 {
-                    _datbaseContext.Likes.FirstOrDefault(l => l.NoteId == request.NoteId && l.UserId == user.Id && l.IsLiked==true);
-                    //await _datbaseContext.SaveChangesAsync();
-                    //return Ok(_datbaseContext.Users.Find(request.noteId));
+                   
+                    likeobj.IsLiked = true;
+
                     try
                     {
                         await _datbaseContext.SaveChangesAsync();
-                        return Ok(new ResultDto<String>
+                        return Ok(new ResultDto<Boolean>
                         {
                             IsSuccess = true,
-                            Data = "موفقیت",
-                            Message = "لایک با موفقیت انجام شد"
+                            Data = likeobj.IsLiked,
+                            Message = "موفقیت"
+
                         });
                     }
                     catch
                     {
-                        return BadRequest(new ResultDto<String>
+                        return BadRequest(new ResultDto<Boolean>
                         {
                             IsSuccess = false,
-                            Data = "موفقیت",
-                            Message = "خطا در عملیات لایک"
+                            Data = likeobj.IsLiked,
+                            Message = "خطا "
                         });
                     }
 
                 }
                 else
                 {
-                    return BadRequest(new ResultDto<String>
+                    return BadRequest(new ResultDto<Boolean>
                     {
                         IsSuccess = false,
-                        Data = "موفقیت",
-                        Message = "خطا در عملیات لایک"
+                        Data = likeobj.IsLiked,
+                        Message = "خطا "
                     });
                 }
             }
@@ -475,28 +482,30 @@ namespace NoteProject.Controllers
                 {
                     NoteId = request.NoteId,
                     UserId = user.Id,
-                    IsLiked = true
+                    IsLiked = true,
+                    User = user,
+                    Note =await _datbaseContext.Notes.FindAsync(request.NoteId)
                 };
-                _datbaseContext.Likes.Add(like);
-                //await _datbaseContext.SaveChangesAsync();
-                //return Ok(_datbaseContext.Notes.Find(request.noteId));
+               
                 try
                 {
+                    await _datbaseContext.Likes.AddAsync(like);
                     await _datbaseContext.SaveChangesAsync();
-                    return Ok(new ResultDto<String>
+                    return Ok(new ResultDto<Boolean>
                     {
                         IsSuccess = true,
-                        Data = "موفقیت",
-                        Message = "لایک با موفقیت انجام شد"
+                        Data = like.IsLiked,
+                        Message = "موفقیت"
+
                     });
                 }
                 catch
                 {
-                    return BadRequest(new ResultDto<String>
+                    return BadRequest(new ResultDto<Boolean>
                     {
                         IsSuccess = false,
-                        Data = "موفقیت",
-                        Message = "خطا در عملیات لایک"
+                        Data = like.IsLiked,
+                        Message = "خطا "
                     });
                 }
 
@@ -579,5 +588,6 @@ namespace NoteProject.Controllers
 
 
         }
+        
     }
 }
