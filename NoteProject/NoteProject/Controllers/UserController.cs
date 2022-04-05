@@ -29,7 +29,7 @@ namespace NoteProject.Controllers
 
         public object ViewBag { get; private set; }
 
-        public UserController(IDatabaseContext datbaseContext , IFacadPic facadPic)
+        public UserController(IDatabaseContext datbaseContext, IFacadPic facadPic)
         {
             _datbaseContext = datbaseContext;
             _facadPic = facadPic;
@@ -141,12 +141,12 @@ namespace NoteProject.Controllers
 
         //save profile changes
         [HttpPost]
-        public async Task<IActionResult> SetProfile([FromForm]SetProfileDto request)
+        public async Task<IActionResult> SetProfile([FromForm] SetProfileDto request)
         {
             var user = await _datbaseContext.Users
                   .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
                   .FirstOrDefaultAsync();
-            
+
             if (user != null)
             {
                 if (user.HasProfile)
@@ -250,7 +250,7 @@ namespace NoteProject.Controllers
 
                     ProfileObj.ProfileImage = uploadResult.Data;
                     user.HasProfile = true;
-                    
+
                     try
                     {
                         await _datbaseContext.Profile.AddAsync(ProfileObj);
@@ -262,7 +262,7 @@ namespace NoteProject.Controllers
                             Message = "عملیات با موفقیت انجام شد"
                         });
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         return BadRequest(new ResultDto
                         {
@@ -273,7 +273,7 @@ namespace NoteProject.Controllers
                 }
 
             }
-           
+
             else
             {
                 return BadRequest(new ResultDto<string>
@@ -284,7 +284,62 @@ namespace NoteProject.Controllers
             }
 
         }
+        //showProfile
+        [HttpPost]
+        public async Task<IActionResult> ShowProfile(ShowProfileDto request)
+        {
+            var user = await _datbaseContext.Users
+                  .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
+                  .FirstOrDefaultAsync();
 
+            if (user != null)
+            {
+               
+                var requestedUser = _datbaseContext.Users.Where(u => u.Id == request.UserId).FirstOrDefault();
+                if (requestedUser.HasProfile == true){
+                    var ProfileObj = _datbaseContext.Profile.Where(p => p.UserId == request.UserId).FirstOrDefault();
+                    ProfileResultDto result = new ProfileResultDto
+                    {
+                        Age = ProfileObj.Age,
+                        City = ProfileObj.City,
+                        Village = ProfileObj.Village,
+                        JobStatus = ProfileObj.JobStatus,
+                        JobTitle = ProfileObj.JobTitle,
+                        JobType = ProfileObj.JobType,
+                        Instagram = ProfileObj.Instagram,
+                        Linkedin = ProfileObj.Linkdin,
+                        EducationNum = ProfileObj.EducationNum,
+                        ProfileDesc = ProfileObj.ProfileDesc,
+                        IMGSrc = _facadPic.GetPicUrlService().GetUrl(ProfileObj.ProfileImage).Data,
+
+                    };
+                    
+                    return Ok(new ResultDto<ProfileResultDto>
+                    {
+                        IsSuccess = true,
+                        Data = result,
+                        Message = "عملیات با موفقیت انجام شد"
+                    });
+                }
+                else
+                {
+                   
+                    return BadRequest(new ResultDto
+                    {
+                        IsSuccess = false,
+                        Message = "کاربر مورد نظر پروفایل ندارد "
+                    });
+                }
+            }
+            else
+            {
+                return BadRequest(new ResultDto
+                {
+                    IsSuccess = false,
+                    Message = "کاربر موجود نیست "
+                });
+            }
         }
+    }
     }
 

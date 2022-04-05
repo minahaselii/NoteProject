@@ -10,6 +10,7 @@ namespace NoteProject.Entity
         public int Age { get; set; }
         public string JobType { get; set; }
         public string JobStatus { get; set; }
+        public string JobTitle { get; set; }
         public int EducationNum { get; set; }
         public int City { get; set; }
         public int Village { get; set; }
