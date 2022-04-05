@@ -2,6 +2,7 @@
 {
     public class DomainDto
     {
-        public static string name { get; set; } = "https://localhost:44327/";
+        public string name { get; set; }
+        
     }
 }

@@ -8,9 +8,11 @@ namespace NoteProject.PicServiice.FacadPicManager
    public class FacadPicService: IFacadPic
     {
         private IHostingEnvironment _hosting;
-        public FacadPicService(IHostingEnvironment hostingEnvironment)
+        private readonly DomainDto _domainDto;
+        public FacadPicService(IHostingEnvironment hostingEnvironment,DomainDto domainDto)
         {
             _hosting = hostingEnvironment;
+            _domainDto = domainDto;
         }
 
         private IUploadPic _IUploadPic { get; set; }
@@ -28,7 +30,7 @@ namespace NoteProject.PicServiice.FacadPicManager
         private GetPicUrlService _getPicUrlService { get; set; }
         public GetPicUrlService GetPicUrlService()
         {
-            return new GetPicUrlService();
+            return new GetPicUrlService(_domainDto);
         }
 
         

@@ -4,6 +4,11 @@ namespace NoteProject.PicServiice.Queries.PicUrl
 {
     public class GetPicUrlService
     {
+        private readonly DomainDto _domainDto;
+         public GetPicUrlService(DomainDto domainDto)
+        {
+            _domainDto = domainDto;
+        }
 
         public ResultDto<string> DeleteUrl(string picUrl)
         {
@@ -19,7 +24,7 @@ namespace NoteProject.PicServiice.Queries.PicUrl
         {
             return new ResultDto<string>
             {
-                Data =picUrl!=null ? DomainDto.name + picUrl :null,
+                Data =picUrl!=null ? _domainDto.name + picUrl :null,
                 IsSuccess = true
             };
 

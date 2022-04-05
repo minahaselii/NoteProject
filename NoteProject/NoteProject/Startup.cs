@@ -29,6 +29,9 @@ namespace NoteProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            DomainDto domainDto = new DomainDto();
+            _Configuration.GetSection("Domain").Bind(domainDto);
+            services.AddSingleton(domainDto);
             /*services.AddDbContext<DatabaseContext>(optionBuilder =>
             {
                 //optionBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=FootballManagement;Trusted_Connection=True;MultipleActiveResultSets=true");
@@ -36,11 +39,9 @@ namespace NoteProject
             });
             services.AddControllersWithViews();
 
-
-
-
             services.AddScoped<IDatabaseContext, DatabaseContext>();*/
-           // services.AddCors(); // Make sure you call this previous to AddMvc
+
+            // services.AddCors(); // Make sure you call this previous to AddMvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddMvc();
             services.AddDbContext<DatabaseContext>(optionBuilder =>
