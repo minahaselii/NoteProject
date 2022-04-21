@@ -582,12 +582,88 @@ namespace NoteProject.Controllers
                 Data = finalChecktLike
 
             });
-
-
-
-
-
         }
-        
+        //add comment
+        [HttpPost]
+        public async Task<IActionResult> AddComment(AddCommentDto request)
+        {
+            var user = await _datbaseContext.Users
+                   .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
+                   .FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return BadRequest("توکن نامعتبراست ");
+            }
+            
+            
+                Comment comment = new Comment()
+                {
+                    NoteId = request.NoteId,
+                    UserId = user.Id,
+                    InsertTime = DateTime.Now,
+                    Comments = request.Comments,
+                    UserName = user.FirstName,
+                };
+
+                try
+                {
+                    await _datbaseContext.Comment.AddAsync(comment);
+                    await _datbaseContext.SaveChangesAsync();
+                    
+                    return Ok(new ResultDto
+                    {
+                        IsSuccess = false,
+                        Message = "موفقیت "
+                    });
+            }
+                catch
+                {
+                    return BadRequest(new ResultDto
+                    {
+                        IsSuccess = false,
+                        Message = "خطا "
+                    });
+                }
+
+            }
+
+
+        //CommentList
+        [HttpPost]
+        public async Task<IActionResult> CommentList(CommentListDto request)
+        {
+
+            var user = await _datbaseContext.Users
+                  .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
+                  .FirstOrDefaultAsync();
+
+            IQueryable<Comment> Comment = _datbaseContext.Comment;
+            IQueryable<AddCommentDto> Commentresult = null;
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            Comment = Comment.Where(l => l.NoteId == request.NoteId);
+            Commentresult = from l in Comment
+                         select new AddCommentDto
+                         {
+                             NoteId = l.NoteId,
+                             UserId = l.UserId,
+                             InsertTime = l.InsertTime,
+                             Comments = l.Comments,
+                             UserName = user.FirstName,
+                         };
+            
+            var CommentList = await Commentresult.ToListAsync();
+
+            return Ok(new ResultDto<List<AddCommentDto>>
+            {
+                IsSuccess = true,
+                Data = CommentList
+
+            });
+        }
+
     }
 }

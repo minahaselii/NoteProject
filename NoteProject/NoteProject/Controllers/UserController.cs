@@ -113,7 +113,7 @@ namespace NoteProject.Controllers
                 return BadRequest("خطا در ثبت اطلاعات");
             }
 
-            return Ok(new { name = user.FirstName, token = user.Token, exp = user.tokenExp, IsAdmin = user.IsAdmin });
+            return Ok(new { name = user.FirstName, token = user.Token, exp = user.tokenExp, IsAdmin = user.IsAdmin ,Id = user.Id});
 
 
         }

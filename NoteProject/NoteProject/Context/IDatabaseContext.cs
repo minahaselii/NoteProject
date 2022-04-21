@@ -15,7 +15,8 @@ namespace NoteProject.Context
         DbSet<Note> Notes { set; get; }
         DbSet<Like> Likes { set; get; }
         DbSet<Profile> Profile { set; get; }
-     
+        DbSet<Comment> Comment { set; get; }
+
 
 
         int SaveChanges(bool acceptAllChangesOnSuccess);

@@ -28,8 +28,8 @@ namespace NoteProject.Entity
         public ICollection<Like> likes { get; set; }
         //public int LikeNum { get; set; }
         public List<User> LikeUsersList { get; set; }
+        public List<Comment> CommentList { get; set; }
 
-        
 
 
     }
