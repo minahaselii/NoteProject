@@ -16,6 +16,7 @@ namespace NoteProject.Context
         DbSet<Like> Likes { set; get; }
         DbSet<Profile> Profile { set; get; }
         DbSet<Comment> Comment { set; get; }
+        DbSet<Tag> Tags { set; get; }
 
 
 

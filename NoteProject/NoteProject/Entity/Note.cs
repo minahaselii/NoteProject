@@ -30,6 +30,8 @@ namespace NoteProject.Entity
         public List<User> LikeUsersList { get; set; }
         public List<Comment> CommentList { get; set; }
 
+        public List<Tag> TagList { get; set; }
+
 
 
     }

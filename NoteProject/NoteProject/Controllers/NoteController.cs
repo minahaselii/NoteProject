@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using NoteProject.Context;
 using NoteProject.Dto.Common;
 using NoteProject.Dto.Note;
+using NoteProject.Dto.Tag;
 using NoteProject.Entity;
 
 namespace NoteProject.Controllers
@@ -41,7 +42,19 @@ namespace NoteProject.Controllers
                 Category = addNoteDto.Category,
                 InsertTime = DateTime.Now,
                 User = user
+                
             };
+           
+
+            
+         /*   Tag tag = new Tag()
+            {
+                tagName = addNoteDto.tagName,
+                postId = note.Id
+            };
+
+            
+            await _datbaseContext.Tags.AddAsync(tag);*/
             await _datbaseContext.Notes.AddAsync(note);
             try
             {
@@ -145,7 +158,8 @@ namespace NoteProject.Controllers
                               Title = n.Title,
                               LikeNum = _datbaseContext.Likes.Where(l => l.NoteId == n.Id && l.IsLiked).Count(),
                               IsLiked = _datbaseContext.Likes.Where(l => l.NoteId == n.Id && l.IsLiked && l.UserId == user.Id).Any(),
-                              LikeUserList =  _datbaseContext.Likes.Include(l => l.User).Where(l => l.NoteId == n.Id && l.IsLiked).Select(l=>l.User).ToList()
+                              LikeUserList =  _datbaseContext.Likes.Include(l => l.User).Where(l => l.NoteId == n.Id && l.IsLiked).Select(l=>l.User).ToList(),
+                              TagList = _datbaseContext.Tags.Where(t => t.postId == n.Id).ToList()
                               
 
                           };
@@ -194,6 +208,7 @@ namespace NoteProject.Controllers
                               InsertTime = n.InsertTime,
                               IsConfirmed = n.IsConfirmed,
                               Title = n.Title,
+                              TagList = _datbaseContext.Tags.Where(t => t.postId == n.Id).ToList()
 
                           };
 
@@ -612,7 +627,7 @@ namespace NoteProject.Controllers
                     
                     return Ok(new ResultDto
                     {
-                        IsSuccess = false,
+                        IsSuccess = true,
                         Message = "موفقیت "
                     });
             }
@@ -665,5 +680,122 @@ namespace NoteProject.Controllers
             });
         }
 
+
+        //Add Tag
+        [HttpPost]
+        public async Task<IActionResult> AddTag(AddTagDto request)
+        {
+            var user = await _datbaseContext.Users
+                   .Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now)
+                   .FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return BadRequest("توکن نامعتبراست ");
+            }
+
+            Tag mytag = new Tag()
+            {
+                tagName = request.tagName,
+                postId = request.postId
+            };
+            
+
+            try
+            {
+                await _datbaseContext.Tags.AddAsync(mytag);
+                await _datbaseContext.SaveChangesAsync();
+
+                return Ok(new ResultDto
+                {
+                    IsSuccess = true,
+                    Message = "موفقیت "
+                });
+            }
+            catch
+            {
+                return BadRequest(new ResultDto
+                {
+                    IsSuccess = false,
+                    Message = "خطا "
+                });
+            }
+
+        }
+
+
+        //TagList
+        [HttpPost]
+        public async Task<IActionResult> TagList(searchTagDto request)
+        {
+
+            var user = await _datbaseContext.Users
+                  .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
+                  .FirstOrDefaultAsync();
+
+            IQueryable<Tag> tag = _datbaseContext.Tags;
+            IQueryable<AddTagDto> tagResualt = null;
+            IQueryable<Note> notes = _datbaseContext.Notes;
+            IQueryable<GetLikeListResultDto> noteIDresults = null;
+            notes = notes.Where(n => n.IsConfirmed);
+
+           
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            tag = tag.Where(l => l.tagName == request.tagName);
+            IQueryable<GetNoteResultDto> noteresults = null;
+
+
+            noteresults = from n in notes
+                          join t in tag
+                          on n.Id equals t.postId
+                          select new GetNoteResultDto
+                          {
+                              Id = n.Id,
+                              UserId = n.UserId,
+                              Category = n.Category,
+                              Desc = n.Desc,
+                              FirstName = "",
+                              LastName = "",
+                              InsertTime = n.InsertTime,
+                              IsConfirmed = n.IsConfirmed,
+                              Title = n.Title,
+                              TagList = _datbaseContext.Tags.Where(t => t.postId == n.Id).ToList()
+
+                          };
+
+
+            var finalResult = await noteresults.ToListAsync();
+
+
+            return Ok(new ResultDto<List<GetNoteResultDto>>
+            {
+                IsSuccess = true,
+                Data = finalResult
+
+            });
+        }
+
+        //remove Tag
+       
+       /* public async Task<IActionResult> RemoveTag(AddTagDto request)
+        {
+
+            var user = await _datbaseContext.Users
+                  .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
+                  .FirstOrDefaultAsync();
+
+           var tag = await _datbaseContext.Tags.Where(t => t.postId == request.postId).FirstOrDefaultAsync();
+           await _datbaseContext.Tags.Remove(tag);
+
+            return Ok(new ResultDto<List<AddTagDto>>
+            {
+                IsSuccess = true,
+                Data = TagList
+
+            });
+        }*/
     }
 }

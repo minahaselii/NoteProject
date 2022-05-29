@@ -20,6 +20,7 @@ namespace NoteProject.Context
         public DbSet<Like> Likes { set; get; }
         public DbSet<Profile> Profile { set; get; }
         public DbSet<Comment> Comment { set; get; }
+        public DbSet<Tag> Tags { set; get; }
 
 
 

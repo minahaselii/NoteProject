@@ -113,7 +113,7 @@ namespace NoteProject.Controllers
                 return BadRequest("خطا در ثبت اطلاعات");
             }
 
-            return Ok(new { name = user.FirstName, token = user.Token, exp = user.tokenExp, IsAdmin = user.IsAdmin ,Id = user.Id});
+            return Ok(new { name = user.FirstName, token = user.Token, exp = user.tokenExp, IsAdmin = user.IsAdmin, Id = user.Id });
 
 
         }
@@ -294,9 +294,10 @@ namespace NoteProject.Controllers
 
             if (user != null)
             {
-               
+
                 var requestedUser = _datbaseContext.Users.Where(u => u.Id == request.UserId).FirstOrDefault();
-                if (requestedUser.HasProfile == true){
+                if (requestedUser.HasProfile == true)
+                {
                     var ProfileObj = _datbaseContext.Profile.Where(p => p.UserId == request.UserId).FirstOrDefault();
                     ProfileResultDto result = new ProfileResultDto
                     {
@@ -313,7 +314,7 @@ namespace NoteProject.Controllers
                         IMGSrc = _facadPic.GetPicUrlService().GetUrl(ProfileObj.ProfileImage).Data,
 
                     };
-                    
+
                     return Ok(new ResultDto<ProfileResultDto>
                     {
                         IsSuccess = true,
@@ -323,7 +324,7 @@ namespace NoteProject.Controllers
                 }
                 else
                 {
-                   
+
                     return BadRequest(new ResultDto
                     {
                         IsSuccess = false,
@@ -340,6 +341,11 @@ namespace NoteProject.Controllers
                 });
             }
         }
-    }
-    }
 
+        /*//Add PDF
+        [HttpPost]
+        public async Task<IActionResult> addPDF([FromForm] SetProfileDto request)
+        {
+        }*/
+    }
+}

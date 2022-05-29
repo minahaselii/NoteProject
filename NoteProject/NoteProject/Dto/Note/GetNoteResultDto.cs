@@ -1,10 +1,9 @@
 ﻿using NoteProject.Entity;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace NoteProject.Dto.Note
+namespace NoteProject.Entity
 {
     public class GetNoteResultDto
     {
@@ -20,5 +19,6 @@ namespace NoteProject.Dto.Note
         public Boolean IsLiked { get; set; }
         public int LikeNum { get; set; }
         public List<User> LikeUserList { get; set; }
+        public List<Tag> TagList { get; set; }
     }
 }
