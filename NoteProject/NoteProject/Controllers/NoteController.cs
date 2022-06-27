@@ -110,9 +110,58 @@ namespace NoteProject.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> GetAllNote(confirmedNoteDto request)
+        {
+            User user;
+            IQueryable<User> users = _datbaseContext.Users;
+            IQueryable<Note> notes = _datbaseContext.Notes;
+            IQueryable<GetNoteResultDto> noteresults = null;
+
+            if (request.IsClientSide)
+            {
+                notes = notes.Where(n => n.IsConfirmed);
+            }
+            if (!string.IsNullOrWhiteSpace(request.Category))
+            {
+                notes = notes.Where(n => n.Category.Equals(request.Category));
+            }
+            noteresults = from n in notes
+                          join u in users
+                          on n.UserId equals u.Id
+                          select new GetNoteResultDto
+                          {
+                              Id = n.Id,
+                              UserId = u.Id,
+                              Category = n.Category,
+                              Desc = n.Desc,
+                              FirstName = u.FirstName,
+                              LastName = u.LastNmae,
+                              InsertTime = n.InsertTime,
+                              IsConfirmed = n.IsConfirmed,
+                              Title = n.Title,
+                              LikeNum = _datbaseContext.Likes.Where(l => l.NoteId == n.Id && l.IsLiked).Count(),
+                              IsLiked = false,
+                              LikeUserList =  _datbaseContext.Likes.Include(l => l.User).Where(l => l.NoteId == n.Id && l.IsLiked).Select(l=>l.User).ToList(),
+                              TagList = _datbaseContext.Tags.Where(t => t.postId == n.Id).ToList()
+                              
+
+                          };
+
+
+            var finalResult = await noteresults.ToListAsync();
+            return Ok(new ResultDto<List<GetNoteResultDto>>
+            {
+                IsSuccess = true,
+                Data = finalResult,
+
+            });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> GetNoteList(GetNoteListDto request)
         {
             var userquery =  _datbaseContext.Users.Where(u => u.Token == request.Token && u.tokenExp > DateTime.Now);
+            
             User user;
             if (!request.IsClientSide)
             {
