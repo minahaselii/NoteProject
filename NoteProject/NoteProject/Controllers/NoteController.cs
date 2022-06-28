@@ -827,24 +827,6 @@ namespace NoteProject.Controllers
             });
         }
 
-        //remove Tag
-       
-       /* public async Task<IActionResult> RemoveTag(AddTagDto request)
-        {
 
-            var user = await _datbaseContext.Users
-                  .Where(u => u.Token.Equals(request.Token) && u.tokenExp > DateTime.Now)
-                  .FirstOrDefaultAsync();
-
-           var tag = await _datbaseContext.Tags.Where(t => t.postId == request.postId).FirstOrDefaultAsync();
-           await _datbaseContext.Tags.Remove(tag);
-
-            return Ok(new ResultDto<List<AddTagDto>>
-            {
-                IsSuccess = true,
-                Data = TagList
-
-            });
-        }*/
     }
 }
